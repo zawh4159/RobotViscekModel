@@ -5,32 +5,25 @@ close all
 
 %% I. Inputs
 
-%%% Ant Property
+%%% Robot Properties
 % Real units (DO NOT ADJUST)
-    antmass = 1e-3; % ant mass (g)
-    sigma = 2.93;  % average ant length (mm)
-    nu_0 = 2.8128; % ant speed (mm/s)
-    raftDens = 0.303747695; % raft density (ants/mm^2)
+    robotmass = 100;    % robot mass (g)
+    sigma = 2.93;       % average robot length (mm)
+    nu_0 = 2.8128;      % robot speed (mm/s)
 
 %%% System Parameters
-    L0 = 20;   % domain size (in ant lengths sigma)
-    dt = 1e-1; %timestep (sec)
+    L0 = 20;            % domain size (in robot lengths sigma)
+    dt = 1e-1;          % timestep (sec)
    
-%%% ABR parameters
-    Rc = 2.0*sigma; % cutoff radius (this should be weak maybe 2 ant lengths)
-    lambda = 1/12; % velocity decay length (units of inverse number of ants) assume 2 ants as decay strength
-    tauR = 2;    % interaction timescale (sec)
-    mu = 0.1;     % mobility (for repulsion)
-    kappa = 1/(sigma); %screening length (1/mm) (for repulsion)
-
-%%% Structural layer parameters
-    Rr = 1.5*sigma;             %cuttoff for neighbors
-    ddot = 0.0175;              %linear contraction rate
-    delta = 2*raftDens*ddot*0.01;   %ejections/(min mm^2) 
+%%% Viscek parameters
+    Rc = 2.0*sigma;     % cutoff radius (this should be weak maybe 2 ant lengths)
+    lambda = 1/12;      % velocity decay length (units of inverse number of ants) assume 2 ants as decay strength
+    tauR = 2;           % interaction timescale (sec)
+    mu = 0.1;           % mobility (for repulsion)
+    kappa = 1/(sigma);  % screening length (1/mm) (for repulsion)
 
 %%% Desired simulation
-    Nants = 500;   %intial number of ants
-    Ns = 50;        %intial number of strucutral ants %%%%raft radius (in ant lengths sigma) 
+    Nrobots = 6;    %intial number of robots
     experimentType = 'viscek'; % choose from {'viscek','viscek','viscek','viscek','viscek'}
 
 %% II. Simulation Options
@@ -41,15 +34,13 @@ close all
 %% III. System Initialization
     
     % 1. Build the system
-    [Coords,Polarity,type,DomainBoundaries,SimulationParameters,RaftArea,RaftRadi] = SystemBuilder(experimentType,L0,Ns,Nants,sigma,raftDens);
+    [Coords,Polarity,Type,DomainBoundaries,SimulationParameters,RaftArea,RaftRadi] = SystemBuilder(experimentType,L0,Nrobots,sigma);
 
     % 2. Split coords by ant types
     surf_coords = Coords(type==1,:);
-    stru_coords = Coords(type~=1,:);
-
+    
     surf_polari = Polarity(type==1,:);
-    stru_polari = Polarity(type~=1,:);
-
+    
     surf_type = type(type==1);
     stru_type = type(type~=1);
 
