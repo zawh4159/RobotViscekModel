@@ -1,37 +1,45 @@
-function [Coords,Polarity,Type,DomainBoundaries,SimulationParameters] = SystemBuilder(experimentType,L0,Nrobots,sigma)
+function [lattice_coords,robot_coords,search_sector,SearchAngle,SearchSectorAngle,DomainBoundaries,PairlistMethod] = SystemBuilder(experimentType,L0,Nrobots,sigma,NumSearchSectors)
 
-
-% 0. Define the domain and raft
+% create the boundary
+% 0. Define the domain
      %Define the domain boundaries
      DomainBoundaries = [-L0*sigma L0*sigma -L0*sigma L0*sigma]; % Size of domain
 
-% 1. Error checks
-    %if RaftRadi > L0*sigma
-    %    error('Inital raft radius R must be less then system domain L0')
-    %end
-    %if Ns > Nants
-    %    error('The number of raft ants cannot exceed the total number of ants')
-    %end
+% 1. Create the lattice coordinates
+switch experimentType
+    case 'flat'
 
-% 2. Create the structural and water layers
-    %[Coords,type] = createRaft(DomainBoundaries,RaftRadi,sigma,raftDens);
+        %create a line
+        xcoord = -L0*sigma:sigma:L0*sigma;
+        ycoord = 0*xcoord;
 
-% 3. Add surface ants
-     %Nsurface = Nants - Ns;
-     [Coords,Polarity,Type] = addRobots(DomainBoundaries,RaftRadi,sigma,Nrobots);
+        lattice_coords = [xcoord; ycoord];
+        
+        PairlistMethod = 2;
+    case 'convex'
+        %create an ellipse with points evenly spaced
+        
+        PairlistMethod = 1;
+    case 'concave'
+        PairlistMethod = 1;
+    otherwise
+        error('Please select a correct experimentType: ("flat","convex","concave")')
+end
 
-% 4. setup experiment type
-    switch experimentType
-        case 'viscek'
+% 2. Add robots to lattice
+    ilattice = randi(length(lattice_coords),[1 Nrobots]);
 
-             SimulationParameters(1) = 1000; %simulation time
-             
-        case wetting
-        case dewetting
-        case air
+    robot_coords = lattice_coords(:,ilattice);
 
-        case contraction
+% 3. Determine search sector
+    SearchSectorAngle = 360/NumSearchSectors;
 
-    end
+    search_sector = randi(NumSearchSectors,[1 Nrobots]);
+
+    searchSectorBoundaries = 0:SearchSectorAngle:360;
+    searchSectorBoundaries(2,:) = circshift(searchSectorBoundaries(1,:),-1);
+    searchSectorBoundaries(:,end) = [];
+
+    SearchAngle = mean(searchSectorBoundaries);
 
 end

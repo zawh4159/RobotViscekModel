@@ -34,7 +34,7 @@ close all
 %% III. System Initialization
     
     % 1. Build the system
-    [Coords,Polarity,Type,DomainBoundaries,SimulationParameters,RaftArea,RaftRadi] = SystemBuilder(experimentType,L0,Nrobots,sigma);
+    [Coords,Polarity,Type,DomainBoundaries,SimulationParameters] = SystemBuilder(experimentType,L0,Nrobots,sigma);
 
     % 2. Split coords by ant types
     surf_coords = Coords(type==1,:);

@@ -1,4 +1,4 @@
-function [Coords,Polarity,Type] = addRobots(DomainBoundaries,RaftRadi,sigma,Nrobots)
+function [Coords,Polarity,Type] = addRobots(DomainBoundaries,sigma,Nrobots)
 %% a. Setup
 % 0. Dubug Options
     iplot = 1;        %plot the output
@@ -61,13 +61,10 @@ Type = [Type ty];
 if iplot
     figure(2); clf
     hold on
-    isurf = type == 1;
-    iraft = type == 2;
-    iwater = type == 4;
-    scatter(Coords(iwater,1),Coords(iwater,2),36,'filled')
-    viscircles([0 0],RaftRadi,'color',[0.8500 0.3250 0.0980])
+    scatter(Coords(:,1),Coords(:,2),36,'filled')
+    % viscircles([0 0],RaftRadi,'color',[0.8500 0.3250 0.0980])
     %scatter(Coords(iraft,1),Coords(iraft,2),36,'filled')
-    scatter(Coords(isurf,1),Coords(isurf,2),36,'filled')
+    % scatter(Coords(isurf,1),Coords(isurf,2),36,'filled')
     axis equal
 end
 end
