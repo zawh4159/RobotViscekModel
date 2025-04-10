@@ -1,6 +1,7 @@
-function [ihop,HopIndex] = findSites(lattice_coords,robot_coords,search_sector,SearchAngle,SearchSectorAngle,Rcut,Idx)
+function [PotentialSites] = findSites(lattice_coords,robot_coords,Idx)
 
 [a,b] = size(robot_coords);
+robot_coords(2,:) = robot_coords(2,:) - 0.01; %remove the offset (just for finding sites)
 
 for ii = 1:b
 
@@ -14,6 +15,7 @@ for ii = 1:b
     potentialSites = [];
     for jj = 1:length(Idx)
         
+        
         % Dont include the site your on
         if robot_coords(:,ii) == lattice_coords(:,jj) 
             continue
@@ -22,35 +24,8 @@ for ii = 1:b
             potentialSites = [potentialSites jj];
         end
     end
-
-    % if no potential sites - skip
-    if isempty(potentialSites)
-        continue
-    end
     
-    % 2. Determine angle between robot and sites
-    Arobot = SearchAngle(search_sector(ii));
-    v1 = [cosd(Arobot) sind(Arobot)];
-    for kk = 1:length(potentialSites)
-        v2 = lattice_coords(:,potentialSites(kk))'-robot_coords(:,ii)';
-        theta(kk) = vecangle360(v1,v2);
-    end
-
-    % 3. Find if site is within the search angle
-    isector = abs(theta) <  SearchSectorAngle;
+    PotentialSites{ii} = potentialSites;
     
-
-    if any(isector)
-        ihop(ii) = 1;
-        HopIndex(ii) = potentialSites(isector);
-    elseif all(isector)
-        ihop(ii) = 1;
-        I = randi(length(isector),1);
-        HopIndex(ii) = potentialSites(I);
-    else
-        ihop(ii) = 0;
-        HopIndex(ii) = NaN;
-    end
-
 end
 end

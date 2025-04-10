@@ -1,4 +1,4 @@
-function [lattice_coords,robot_coords,search_sector,SearchAngle,SearchSectorAngle,DomainBoundaries,PairlistMethod] = SystemBuilder(experimentType,L0,Nrobots,sigma,NumSearchSectors)
+function [lattice_coords,robot_coords,robot_sectorangle,SearchSectorAngle,DomainBoundaries,PairlistMethod]  = SystemBuilder(experimentType,L0,Nrobots,sigma,NumSearchSectors)
 
 % create the boundary
 % 0. Define the domain
@@ -18,7 +18,7 @@ switch experimentType
         PairlistMethod = 2;
     case 'convex'
         %create an ellipse with points evenly spaced
-        
+
         PairlistMethod = 1;
     case 'concave'
         PairlistMethod = 1;
@@ -29,17 +29,21 @@ end
 % 2. Add robots to lattice
     ilattice = randi(length(lattice_coords),[1 Nrobots]);
 
-    robot_coords = lattice_coords(:,ilattice);
+    robot_coords = [0; 0.01];%lattice_coords(:,ilattice);
+    %robot_coords(2,:) = robot_coords(2,:) + 0.01;
 
-% 3. Determine search sector
+% 3. Determine robots intital angle
+    v1 = [1 0]; %Fixed coordinate frame
+    v2 = robot_coords'-lattice_coords(:,ilattice)'; %Normal vector from sit to robot
+    robot_sectorangle = vecangle360(v1,v2);
+
+% 4. Determine search sector
     SearchSectorAngle = 360/NumSearchSectors;
 
-    search_sector = randi(NumSearchSectors,[1 Nrobots]);
-
-    searchSectorBoundaries = 0:SearchSectorAngle:360;
-    searchSectorBoundaries(2,:) = circshift(searchSectorBoundaries(1,:),-1);
-    searchSectorBoundaries(:,end) = [];
-
-    SearchAngle = mean(searchSectorBoundaries);
+    %search_sector = randi(NumSearchSectors,[1 Nrobots]);
+    %searchSectorBoundaries = 0:SearchSectorAngle:360;
+    %searchSectorBoundaries(2,:) = circshift(searchSectorBoundaries(1,:),-1);
+    %searchSectorBoundaries(:,end) = [];
+    %SearchAngle = mean(searchSectorBoundaries);
 
 end

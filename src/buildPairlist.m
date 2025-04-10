@@ -1,11 +1,11 @@
 function  [Idx] = buildPairlist(lattice_coords,robot_coords,Rcut,DomainBoundaries,PairlistMethod)
     
-CoordsA = lattice_coords';
-CoordsB = robot_coords';
+    CoordsA = lattice_coords';
+    CoordsB = robot_coords';
 
-[a,b] = size(CoordsB);
+    [a,b] = size(CoordsB);
 
-%search for neighbors within the cutoff Rcut
+    %search for neighbors within the cutoff Rcut
     % this method is okay if no periodic BC (for concave or convex)
     if PairlistMethod == 1
         Idx = rangesearch(CoordsA,CoordsB,Rcut,'NSMethod','exhaustive');
@@ -38,7 +38,7 @@ CoordsB = robot_coords';
                     dy = abs(yi-yj);
 
                     if dx > Ldom/2
-                        dx = Ldom- dx;
+                        dx = Ldom-dx;
                     end
                     if dy > Ldom/2
                         dy = Ldom-dy;
