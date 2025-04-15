@@ -1,0 +1,24 @@
+clear all 
+Timevector = [0.1e3 0.05e3 0.01e3];
+AngVector = [45 135 170];
+n = 15; %number of trials to run
+
+cnt = 0;
+for ii = 1:length(Timevector)
+    for jj = 1:length(AngVector)
+        for kk = 1:n
+            cnt = cnt + 1;
+            Vars(cnt,:) = [Timevector(jj) AngVector(ii)];
+        end
+    end
+end
+
+parfor mm = 1:length(Vars)
+    ExpTime = Vars(mm,1);
+    SearchSectorAngle = Vars(mm,2);
+    [X] = parRobotLatticeModel(ExpTime,SearchSectorAngle);
+
+    Xend(mm) = X
+end
+
+%save('Xend2.mat',"Xend","Vars")

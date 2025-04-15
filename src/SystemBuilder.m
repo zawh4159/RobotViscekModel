@@ -1,4 +1,4 @@
-function [lattice_coords,robot_coords,robot_sectorangle,SearchSectorAngle,DomainBoundaries,PairlistMethod]  = SystemBuilder(experimentType,L0,Nrobots,sigma,NumSearchSectors)
+function [lattice_coords,robot_coords,robot_sectorangle,DomainBoundaries,PairlistMethod]  = SystemBuilder(experimentType,L0,Nrobots,sigma)
 
 % create the boundary
 % 0. Define the domain
@@ -38,7 +38,7 @@ end
     robot_sectorangle = vecangle360(v1,v2);
 
 % 4. Determine search sector
-    SearchSectorAngle = 360/NumSearchSectors;
+    %SearchSectorAngle = 170;
 
     %search_sector = randi(NumSearchSectors,[1 Nrobots]);
     %searchSectorBoundaries = 0:SearchSectorAngle:360;
