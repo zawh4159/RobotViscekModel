@@ -17,15 +17,30 @@ for ii = 1:b
     end
     
     %loop through sites and find angle
-    v1 = [1 0];
+    % % v1 = [1 0];
+    % % for jj = 1:length(pot_sites)
+    % %     v2 = lattice_coords(:,pot_sites(jj))'-robot_coords(:,ii)';
+    % %     theta(jj) = vecangle360(v2,v1);
+    % % end
+    theta = [];
+    v1 = [cosd(robot_sectorangle) sind(robot_sectorangle)]; %robot vector
     for jj = 1:length(pot_sites)
         v2 = lattice_coords(:,pot_sites(jj))'-robot_coords(:,ii)';
-        theta(jj) = vecangle360(v2,v1);
+        theta_pos(jj) = vecangle360(v2,v1);
+        theta_neg(jj) = vecangle360(v1,v2);
+
+        if theta_pos(jj) > 0
+            theta(jj) = theta_pos(jj);
+        else
+            theta(jj) = theta_neg(jj);
+        end
     end
+    %[robot_coords(1,:),1*cosd(robot_sectorangle)+robot_coords(1,:)],[robot_coords(2,:),1*sind(robot_sectorangle)+robot_coords(2,:)]
 
     % find if site is within search sector
-    isector = abs(robot_sectorangle-theta) < SearchSectorAngle/2;
-    
+    %isector = abs(robot_sectorangle-theta) < SearchSectorAngle/2;
+    isector = theta < SearchSectorAngle/2;
+
     if sum(isector) == 1
         ijump(ii) = 1;
         JumpIndex(ii) = pot_sites(isector);

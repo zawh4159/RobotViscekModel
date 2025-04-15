@@ -1,0 +1,91 @@
+function [lattice_coords] = constructEllipse(N,e,sigma)
+
+% DO NOT ADJUST
+tol = 0.1e-1;
+maxiter = 1e6;
+da = 0.001;
+
+% Intial condition
+a_start = 0.01;
+
+e = 0.9; N = 17; sigma = 1;
+
+disp('Finding semi-major and semi-minor axes...')
+
+% Find the major and minor axis
+curtol = 1; iter = 0;
+while curtol > tol
+    iter = iter + 1;
+    
+    if iter > maxiter
+        error('Could not find ellipse')
+    end
+    
+    % Increment the minor axis
+    if iter == 1
+        a = a_start;
+    else
+        a = a + da;
+    end
+    
+    % Find the major axis
+    b = sqrt(a^2-(e*a)^2);
+
+    % parameter for elliptic integral
+    m = 1 - b^2/a^2;
+    
+    %get the circumference
+    circumference = 4*a*ellipticE(m);
+    curtol = abs(circumference -N*sigma); %error
+
+end
+fprintf("done in %4.0f iterations \n",iter)
+%%
+% Now that we know the semi-major and minor axes: need to compute the
+% inverse of the incomplete elliptic integral of the second kind to find
+% the angles for the N points
+
+theta = zeros([1 N]);
+xcoord = zeros([1 N]);
+ycoord = zeros([1 N]);
+
+theta(1) = 0;
+xcoord(1) = a*sin(theta(1));
+ycoord(1) = b*cos(theta(1));
+
+
+
+dtheta = 0.005;
+for ii = 2:N
+    fprintf("Computing elliptic point... %1.0f/%1.0f \n",ii,N-1)
+    % new start point
+    phi = theta(ii-1) + 2*dtheta;
+
+    curtol = 1; iter = 0;
+    while curtol > 0.025
+        iter = iter + 1;
+        
+        phi = phi + dtheta;
+
+        if iter > maxiter
+            error('Could not find ellipse')
+        end 
+        
+        %the new theta_start is the old point
+        curtol = abs(a*ellipticE(phi,m) - ((ii-1)/N)*circumference);
+    end
+
+
+    theta(ii) = phi;
+    xcoord(ii) = a*sin(theta(ii));
+    ycoord(ii) = b*cos(theta(ii));
+    
+
+end
+
+
+% ii=2
+% 
+% scatter(xcoord,ycoord)
+% axis('square')
+% axis([-5 5 -5 5])

@@ -1,4 +1,4 @@
-function [lattice_coords,robot_coords,robot_sectorangle,robot_latticeindex,DomainBoundaries,PairlistMethod,ellipseaxes]  = SystemBuilder(experimentType,L0,Nrobots,sigma,e,N)
+function [lattice_coords,robot_coords,robot_sectorangle,DomainBoundaries,PairlistMethod]  = SystemBuilder(experimentType,L0,Nrobots,sigma)
 
 % create the boundary
 % 0. Define the domain
@@ -8,22 +8,21 @@ function [lattice_coords,robot_coords,robot_sectorangle,robot_latticeindex,Domai
 % 1. Create the lattice coordinates
 switch experimentType
     case 'flat'
+
         %create a line
         xcoord = -L0*sigma:sigma:L0*sigma;
         ycoord = 0*xcoord;
-        ellipseaxes = NaN;
 
         lattice_coords = [xcoord; ycoord];
-
+        
         PairlistMethod = 2;
     case 'convex'
         %create an ellipse with points evenly spaced
-        [lattice_coords,ellipseaxes] = constructEllipse(N,e,sigma);
-
-        PairlistMethod = 2;
+        [lattice_coords] = constructEllipse(N,e,sigma);
+        PairlistMethod = 1;
     case 'concave'
-        PairlistMethod = 2;
-        [lattice_coords,ellipseaxes] = constructEllipse(N,e,sigma);
+        PairlistMethod = 1;
+        [lattice_coords] = constructEllipse(N,e,sigma);
     otherwise
         error('Please select a correct experimentType: ("flat","convex","concave")')
 end
@@ -32,21 +31,18 @@ end
 switch experimentType
     case 'flat'
         robot_coords = [0; 0.01];%lattice_coords(:,ilattice);
-        robot_latticeindex = 1;
     case 'convex'
-       robot_coords = [lattice_coords(1,1); 1.01*lattice_coords(2,1)];
-       robot_latticeindex = 1;
+       robot_coords = []
     case 'concave'
-       robot_coords = [lattice_coords(1,1); 0.99*lattice_coords(2,1)];
-       robot_latticeindex = 1;
+       
     otherwise
         error('Please select a correct experimentType: ("flat","convex","concave")')
 end
 
 
     %ilattice = randi(length(lattice_coords),[1 Nrobots]);
-    ilattice = 1;
-    %robot_coords = [0; 0.01];%lattice_coords(:,ilattice);
+
+    robot_coords = [0; 0.01];%lattice_coords(:,ilattice);
     %robot_coords(2,:) = robot_coords(2,:) + 0.01;
 
 % 3. Determine robots intital angle

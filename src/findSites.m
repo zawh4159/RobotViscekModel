@@ -1,7 +1,6 @@
 function [PotentialSites] = findSites(lattice_coords,robot_coords,Idx)
 
 [a,b] = size(robot_coords);
-robot_coords(2,:) = robot_coords(2,:) - 0.01; %remove the offset (just for finding sites)
 
 for ii = 1:b
 
@@ -17,7 +16,7 @@ for ii = 1:b
         
         
         % Dont include the site your on
-        if robot_coords(:,ii) == lattice_coords(:,jj) 
+        if sum(abs(robot_coords(:,ii) - lattice_coords(:,jj))) < 0.05
             continue
         end
         if any(Idx{jj}==ii)

@@ -2,7 +2,7 @@ clear all
 close all
 
 %% 0. Preamble
-
+    
 %% I. Inputs
 
 %%% Robot Properties
@@ -10,31 +10,33 @@ close all
     sigma = 1;               % average robot length (mm)
     
 % Model Parameters
-    SearchSectorAngle = 45;   
-    tauR = 0.001;            % Timescale for rotational diffusion
-    Rcut = 1.2*sigma;        % Cutoff radius
+    SearchSectorAngle = 25;   
+    tauR = 0.0001;            % Timescale for rotational diffusion
+    Rcut = 1.3*sigma;        % Cutoff radius
 
 %%% System Parameters
-    L0 = 1000;                  % domain size (in robot lengths sigma)
+    L0 = 1000;               % domain size (in robot lengths sigma)
     dt = 0.01;               % timestep (sec)
 
 %%% Desired simulation
-    Nrobots = 1;             %intial number of robots
-    experimentType = 'flat'; % choose from {'viscek','viscek','viscek','viscek','viscek'}
+    Nrobots = 1;             % intial number of robots
+    N = 20;                  % number of ellipse points
+    e = 0.95;                 % eccentricity (circle: e = 0,ellipse: 0 < e < 1)
+    experimentType = 'convex'; % choose from {'flat','convex','concave'}
 
 %% II. Simulation Options
 
 %%% Dump properties
     nout = 5;
-    ExpTime = 0.01e3; %[1e3 0.5e3 0.1e3 0.05e3 0.01e3]
-
+    ExpTime = 5e3; %[1e3 0.5e3 0.1e3 0.05e3 0.01e3]
+    iplot = 0;
     % video options
     % v = VideoWriter("RobotLattice");
     % open(v)
 
 %% III. System Initialization
 % 1. Build the system
-    [lattice_coords,robot_coords,robot_sectorangle,DomainBoundaries,PairlistMethod]  = SystemBuilder(experimentType,L0,Nrobots,sigma);
+    [lattice_coords,robot_coords,robot_sectorangle,robot_latticeindex,DomainBoundaries,PairlistMethod,ellipseaxes]  = SystemBuilder(experimentType,L0,Nrobots,sigma,e,N);
 
 %% IV. Run Experiment
 iter = 0; TotalTime = 0; dumpstep = 0;
@@ -57,28 +59,40 @@ while TotalTime < ExpTime
     [ijump,JumpIndex] = checkSearchField(lattice_coords,robot_coords,robot_sectorangle,PotentialSites,SearchSectorAngle);
    
     % 5. Update robots lattice positions
-    [robot_coords,robot_sectorangle] = moveRobots(lattice_coords,robot_coords,robot_sectorangle,ijump,JumpIndex);
-
+    [robot_coords,robot_sectorangle,robot_latticeindex] = moveRobots(lattice_coords,robot_coords,robot_sectorangle,robot_latticeindex ,ijump,JumpIndex);
     %% b. Outputs % Plotting
     if rem(iter/nout,1) == 0
             
-            % figure(1); clf
-            % hold on
-            % plot([-L0 L0],[0 0],'k','LineWidth',2)
-            % scatter(lattice_coords(1,:),lattice_coords(2,:),'filled')
-            % scatter(robot_coords(1,:),robot_coords(2,:),'filled')
-            % axis([-L0 L0 -L0 L0])
-            % set(gca,"FontName",'Helvetica','LineWidth',1.75,'FontSize',14)
-            % box on
-            % axis square
-            % 
-            % plot([robot_coords(1,:),1*cosd(robot_sectorangle)+robot_coords(1,:)],[robot_coords(2,:),1*sind(robot_sectorangle)+robot_coords(2,:)],'LineWidth',2,'Color','k')
-            % plot([robot_coords(1,:),1*cosd(robot_sectorangle-SearchSectorAngle/2)+robot_coords(1,:)],[robot_coords(2,:),1*sind(robot_sectorangle-SearchSectorAngle/2)+robot_coords(2,:)],'LineWidth',1,'LineStyle','-.','Color',[0.5 0.5 0.5])
-            % plot([robot_coords(1,:),1*cosd(robot_sectorangle+SearchSectorAngle/2)+robot_coords(1,:)],[robot_coords(2,:),1*sind(robot_sectorangle+SearchSectorAngle/2)+robot_coords(2,:)],'LineWidth',1,'LineStyle','-.','Color',[0.5 0.5 0.5])
+            if iplot
+            figure(1); clf
+            hold on
 
+            % Draw boundary
+            %plot([-L0 L0],[0 0],'k','LineWidth',2) %for flat
+            phi = linspace(0,2*pi,1000);
+            plot(ellipseaxes.a*sin(phi),ellipseaxes.b*cos(phi),'k','LineWidth',2)%for ellipse
+           
+            % Draw sites
+            scatter(lattice_coords(1,:),lattice_coords(2,:),'filled')
+
+            % Draw robot
+            scatter(robot_coords(1,:),robot_coords(2,:),'filled')
+            
+            % Draw robots field of vision
+            plot([robot_coords(1,:),1*cosd(robot_sectorangle)+robot_coords(1,:)],[robot_coords(2,:),1*sind(robot_sectorangle)+robot_coords(2,:)],'LineWidth',2,'Color','k')
+            plot([robot_coords(1,:),1*cosd(robot_sectorangle-SearchSectorAngle/2)+robot_coords(1,:)],[robot_coords(2,:),1*sind(robot_sectorangle-SearchSectorAngle/2)+robot_coords(2,:)],'LineWidth',1,'LineStyle','-.','Color',[0.5 0.5 0.5])
+            plot([robot_coords(1,:),1*cosd(robot_sectorangle+SearchSectorAngle/2)+robot_coords(1,:)],[robot_coords(2,:),1*sind(robot_sectorangle+SearchSectorAngle/2)+robot_coords(2,:)],'LineWidth',1,'LineStyle','-.','Color',[0.5 0.5 0.5])
+
+            %axis([-L0 L0 -L0 L0])
+            axis([-5 5 -5 5])
+            set(gca,"FontName",'Helvetica','LineWidth',1.75,'FontSize',14)
+            box on
+            axis square
+            
+            
             % Frame = getframe(gcf);
             % writeVideo(v,Frame)
-            
+            end
     end
 
     %% c. Computes
@@ -90,6 +104,8 @@ while TotalTime < ExpTime
     % robots traveled distance from start point
 
 end
+
+histogram(robot_latticeindex,20)
 
 % close(v)
 %%
