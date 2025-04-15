@@ -28,7 +28,7 @@ close all
 
 %%% Dump properties
     nout = 5;
-    ExpTime = 5e3; %[1e3 0.5e3 0.1e3 0.05e3 0.01e3]
+    ExpTime = 10e3; %[1e3 0.5e3 0.1e3 0.05e3 0.01e3]
     iplot = 0;
     % video options
     % v = VideoWriter("RobotLattice");
